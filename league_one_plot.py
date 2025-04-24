@@ -7,6 +7,7 @@ from matplotlib.cm import ScalarMappable
 from aggregate_rank_league_one_statsbomb import calculate_percentiles_league_one
 from get_position_specific_metrics_statsbomb import get_player_metrics
 from scipy.stats import rankdata
+import os
 
 def plot_distribution_league_one_u21(player_df, df, metric_grouping_information, save_path, chronological_season_ids):
     """
@@ -26,19 +27,22 @@ def plot_distribution_league_one_u21(player_df, df, metric_grouping_information,
     """
 
       # Ensure axes is always iterable by wrapping single axis in a list
-    fig, axes = plt.subplots(len(player_df), 1, figsize=(12, 4.5 * len(player_df)))  # Increased figure size for annotations
+    fig, axes = plt.subplots(len(player_df), 1, figsize=(8, 4.5 * len(player_df)))  # Increased figure size for annotations
     if not isinstance(axes, np.ndarray):  # If only one subplot, wrap in a list
         axes = [axes]
 
     norm = Normalize(vmin=0, vmax=100)
     cmap = plt.get_cmap('viridis')
 
-    lines_all = []
-    labels_all = []
-    lines_u21 = []
-    labels_u21 = []
+
+
 
     for i, (index, row) in enumerate(player_df.iterrows()):
+
+        lines_all = []
+        labels_all = []
+
+    
         season_id = row['season_id']
         season_name = row['season_name']
         competition_id = row['competition_id']
@@ -71,7 +75,11 @@ def plot_distribution_league_one_u21(player_df, df, metric_grouping_information,
         ranking_df = calculate_percentiles_league_one(league_one_season_df, comparable_positions, general_metrics)
 
         # General plot
-        title_general = f"{position_group.replace('_', ' ').title()}s: League One, {league_one_season_name}"
+        if '/' not in season_name:
+            
+            title_general = f"{position_group.replace('_', ' ').title()}s: League One, {season_name} & {league_one_season_name}"
+        else:
+            title_general = f"{position_group.replace('_', ' ').title()}s: League One, {league_one_season_name}"
         # title_general = f"{row['competition_name'].replace('_', ' ').title()}, {row['season_name']}"
 
         # Sort ranking_df by 'average_rank' for accurate ranking
@@ -112,9 +120,8 @@ def plot_distribution_league_one_u21(player_df, df, metric_grouping_information,
         # Add legends
         sorted_labels_all = sorted(labels_all, key=lambda x: x[0], reverse=False)
         sorted_handles_all = [lines_all[labels_all.index(item)] for item in sorted_labels_all]
-        legend1 = axes[i].legend(sorted_handles_all, [item[1] for item in sorted_labels_all], loc='center left', bbox_to_anchor=(1, 0.5), title=f"Percentiles: {player_name.replace('_', ' ').title()} & Lincoln Players")
+        axes[i].legend(sorted_handles_all, [item[1] for item in sorted_labels_all], loc='center left', bbox_to_anchor=(1, 0.5), title=f"Percentiles: {player_name.replace('_', ' ').title()} & Lincoln Players")
         
-        axes[i].add_artist(legend1)
 
 
         # Check if player is under 21, if so make second u21 legend and add text to annotation for u21 ranking
@@ -147,7 +154,13 @@ def plot_distribution_league_one_u21(player_df, df, metric_grouping_information,
     plt.tight_layout()
 
     # Save plot as png with a player-specific filename
-    plt.savefig(f'{save_path}/league_one_year_by_year_ranking_{row["player_name"].replace(" ", "_")}.png')
+    full_path = f'{save_path}/{row["player_name"].replace(" ", "_")}'
+    
+    # Create the directory if it doesn't exist
+    if not os.path.exists(full_path):
+        os.makedirs(full_path)
+        
+    plt.savefig(f"{full_path}/league_one_year_by_year_ranking_.png")
 
     plt.show()
 

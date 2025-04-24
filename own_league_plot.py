@@ -6,6 +6,7 @@ from matplotlib.cm import get_cmap
 from get_position_specific_metrics_statsbomb import get_player_metrics
 from aggregate_rank_statsbomb import calculate_percentiles
 from scipy.stats import rankdata
+import os
 
 def plot_stacked_distribution_u21_flag(player_df, df, metric_grouping_information, save_path):
 
@@ -35,6 +36,7 @@ def plot_stacked_distribution_u21_flag(player_df, df, metric_grouping_informatio
     for i, (index, row) in enumerate(player_df.iterrows()):
         season_id = row['season_id']
         competition_id = row['competition_id']
+        competition_name = row['competition_name']
         player_name = row['player_name']
         player_position = row['primary_position']
         player_age = row['age']  # Assuming 'age' is in player_df
@@ -136,11 +138,11 @@ def plot_stacked_distribution_u21_flag(player_df, df, metric_grouping_informatio
             # only keep part before .split('Rank: ')[1] in sorted labels
             # sorted_labels = [label.split('(')[0] for label in sorted_labels]
 
-            axes[i].legend(sorted_lines, sorted_labels, loc='upper left', bbox_to_anchor=(1, 0.5))
+            axes[i].legend(sorted_lines, sorted_labels, loc='center left', bbox_to_anchor=(1, 0.5), title=f"U21 Percentiles: {player_name.replace('_', ' ').title()} & {competition_name.replace('_', ' ').title()} Players")
         else:
             # combined_text = general_text + "\nPlayer is not under 21."
             combined_text = general_text
-            axes[i].legend(loc='upper left', bbox_to_anchor=(1, 0.5))
+            axes[i].legend(loc='center left', bbox_to_anchor=(1, 0.5), title = f"{player_name.replace('_', ' ').title()}")
 
         axes[i].text(0.02, 0.95, combined_text, transform=axes[i].transAxes, verticalalignment='top',
                      bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
@@ -149,7 +151,13 @@ def plot_stacked_distribution_u21_flag(player_df, df, metric_grouping_informatio
     plt.tight_layout()
 
     # Save plot as png with a player-specific filename
-    plt.savefig(f'{save_path}/own_league_year_by_year_ranking_{row["player_name"].replace(" ", "_")}.png')
+    full_path = f'{save_path}/{row["player_name"].replace(" ", "_")}'
+    
+    # Create the directory if it doesn't exist
+    if not os.path.exists(full_path):
+        os.makedirs(full_path)
+        
+    plt.savefig(f"{full_path}/own_league_year_by_year_ranking_.png")
 
     plt.show()
 

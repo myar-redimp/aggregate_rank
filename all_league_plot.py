@@ -149,7 +149,7 @@ def plot_distribution_all_leagues(player_df, df, metric_grouping_information, sa
     if not os.path.exists(full_path):
         os.makedirs(full_path)
         
-    plt.savefig(f"{full_path}/all_league_year_by_year_ranking_.png)
+    plt.savefig(f"{full_path}/all_league_year_by_year_ranking_.png")
 
     plt.show()
 
