@@ -131,37 +131,12 @@ def plot_distribution_league_one_u21(player_df, df, metric_grouping_information,
             u21_player_ranking_row = sorted_u21_df[sorted_u21_df['player_name'] == player_name]
             u21_player_index = u21_player_ranking_row.index[0]
 
-
-
-            for u21_index, u21_row in sorted_u21_df.iterrows():
-                u21_rank = u21_df['average_rank'].rank(method='min', ascending=False).loc[u21_index]
-                u21_total_players = len(u21_df)
-                u21_percentile = int(100- (u21_rank *100 / u21_total_players))
-                u21_name = u21_row['player_name']
-
-                # Use red for Bobby Wales, otherwise use color based on rank
-                if u21_name == player_name:
-                    color = 'red'
-                else:
-                    color = cmap(norm(percentile))
-
-                u21_line = axes[i].axvline(u21_row['average_rank'], color=color, linestyle=':', alpha=0.5)
-                u21_lines.append(u21_line)
-                u21_labels.append(f"{u21_name} (Percentile: {u21_percentile})")
-
             # Recalculate rank percentile for the specific U21 player
             u21_player_rank = u21_df['average_rank'].rank(method='min', ascending=False).loc[u21_player_index]
             u21_total_players = len(u21_df)
             u21_player_percentile = int(100- (u21_player_rank *100 / u21_total_players))
             u21_text = f"\nRanked {int(u21_player_rank)} out of {u21_total_players} U21 players"
             combined_text = general_text + u21_text
-
-            # Sort legend by rank in ascending order
-            sorted_u21_handles_labels = sorted(zip(u21_lines, u21_labels), key=lambda x: float(x[1].split(': ')[1].split(')')[0]))
-            sorted_u21_lines, sorted_u21_labels = zip(*sorted_u21_handles_labels)
-            
-            # Second legend
-            axes[i].legend(sorted_u21_lines, sorted_u21_labels, loc='center left', bbox_to_anchor=(1.5, 0.5), title=f" U21 Percentiles: {player_name.replace('_', ' ').title()} & Lincoln Players")
         else:
             combined_text = general_text
 
